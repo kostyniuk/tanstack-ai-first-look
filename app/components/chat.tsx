@@ -29,10 +29,10 @@ export function Chat({ className }: { className?: string }) {
         if (scrollAreaRef.current) {
             const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
             if (scrollContainer) {
-                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+                (scrollContainer as HTMLElement).lastElementChild?.scrollIntoView({ behavior: 'smooth' });
             }
         }
-    }, [messages]);
+    }, [messages, isLoading]);
 
     return (
         <Card className={`flex flex-col h-[600px] w-full shadow-lg ${className}`}>
@@ -42,37 +42,35 @@ export function Chat({ className }: { className?: string }) {
                     AI Assistant
                 </CardTitle>
             </CardHeader>
-            
+
             <CardContent className="flex-1 p-0 overflow-hidden">
-                <ScrollArea ref={scrollAreaRef} className="h-full p-4">
-                    <div className="flex flex-col gap-4">
+                <ScrollArea className="h-full p-4">
+                    <div ref={scrollAreaRef} className="flex flex-col gap-4">
                         {messages.length === 0 && (
                             <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-10 opacity-50">
                                 <Bot className="w-12 h-12 mb-2" />
                                 <p>Start a conversation...</p>
                             </div>
                         )}
-                        
+
                         {messages.map((message) => (
                             <div
                                 key={message.id}
-                                className={`flex gap-3 ${
-                                    message.role === "assistant" ? "justify-start" : "justify-end"
-                                }`}
+                                className={`flex gap-3 ${message.role === "assistant" ? "justify-start" : "justify-end"
+                                    }`}
                             >
                                 {message.role === "assistant" && (
                                     <Avatar className="w-8 h-8 border">
                                         <AvatarFallback>AI</AvatarFallback>
-                                        <AvatarImage src="/bot-avatar.png" /> 
+                                        <AvatarImage src="/bot-avatar.png" />
                                     </Avatar>
                                 )}
-                                
+
                                 <div
-                                    className={`flex flex-col max-w-[80%] rounded-lg px-4 py-2 text-sm ${
-                                        message.role === "assistant"
-                                            ? "bg-muted text-foreground"
-                                            : "bg-primary text-primary-foreground"
-                                    }`}
+                                    className={`flex flex-col max-w-[80%] rounded-lg px-4 py-2 text-sm ${message.role === "assistant"
+                                        ? "bg-muted text-foreground"
+                                        : "bg-primary text-primary-foreground"
+                                        }`}
                                 >
                                     {message.parts.map((part, idx) => {
                                         if (part.type === "thinking") {
@@ -81,7 +79,7 @@ export function Chat({ className }: { className?: string }) {
                                                     key={idx}
                                                     className="text-xs opacity-70 italic mb-1 border-l-2 border-primary/30 pl-2"
                                                 >
-                                                    Thinking: {part.content}
+                                                    Thinking... {part.content}
                                                 </div>
                                             );
                                         }
@@ -91,7 +89,6 @@ export function Chat({ className }: { className?: string }) {
                                         return null;
                                     })}
                                 </div>
-
                                 {message.role === "user" && (
                                     <Avatar className="w-8 h-8 border">
                                         <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
@@ -99,16 +96,6 @@ export function Chat({ className }: { className?: string }) {
                                 )}
                             </div>
                         ))}
-                        {isLoading && (
-                             <div className="flex gap-3 justify-start">
-                                <Avatar className="w-8 h-8 border">
-                                    <AvatarFallback>AI</AvatarFallback>
-                                </Avatar>
-                                <div className="bg-muted text-foreground rounded-lg px-4 py-2 text-sm flex items-center">
-                                    <span className="animate-pulse">Thinking...</span>
-                                </div>
-                             </div>
-                        )}
                     </div>
                 </ScrollArea>
             </CardContent>
